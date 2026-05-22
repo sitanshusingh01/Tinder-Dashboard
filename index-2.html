@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tinder Insight by Sitanshu Singh</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root[data-theme="light"] {
+  --bg: #FFFFFF;
+  --bg2: #F7F4F2;
+  --bg3: #F0EBE8;
+  --bg4: #E8E0DC;
+  --text: #111111;
+  --text-muted: #555555;
+  --text-dim: #888888;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.13);
+  --card-bg: #FFFFFF;
+  --nav-bg: rgba(255,255,255,0.96);
+  --shadow: 0 2px 12px rgba(0,0,0,0.07);
+  --toggle-bg: #E8E0DC;
+  --toggle-knob: #FFFFFF;
+  --funnel-track: #F0EBE8;
+  --insight-bg: rgba(255,107,53,0.07);
+  --insight-border: rgba(255,107,53,0.25);
+  --psych-bg: #F7F4F2;
+  --prox-outer-bg: rgba(0,0,0,0.03);
+  --prox-outer-border: #DDDDDD;
+  --stat-td: #666666;
+  --heatmap-empty: #F0EBE8;
+  --kpi-bg: #F7F4F2;
+  --kpi-border: rgba(0,0,0,0.07);
+}
+:root[data-theme="dark"] {
+  --bg: #0D0D0D;
+  --bg2: #1A1A1A;
+  --bg3: #252525;
+  --bg4: #2F2F2F;
+  --text: #F5F0EB;
+  --text-muted: #9A9080;
+  --text-dim: #6A6058;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.1);
+  --card-bg: #1A1A1A;
+  --nav-bg: rgba(13,13,13,0.96);
+  --shadow: 0 2px 12px rgba(0,0,0,0.4);
+  --toggle-bg: #2F2F2F;
+  --toggle-knob: #F5F0EB;
+  --funnel-track: #252525;
+  --insight-bg: rgba(255,107,53,0.08);
+  --insight-border: rgba(255,107,53,0.2);
+  --psych-bg: #1A1A1A;
+  --prox-outer-bg: rgba(255,255,255,0.03);
+  --prox-outer-border: #2F2F2F;
+  --stat-td: #9A9080;
+  --heatmap-empty: #252525;
+  --kpi-bg: #1A1A1A;
+  --kpi-border: rgba(255,255,255,0.06);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  transition: background 0.3s, color 0.3s;
+  min-height: 100vh;
+}
+
+/* NAV */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0;
+  background: var(--nav-bg);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.flame {
+  width: 26px; height: 30px;
+  background: linear-gradient(160deg, #FF6B35 0%, #E8251A 70%);
+  clip-path: polygon(50% 0%,80% 25%,100% 55%,85% 80%,60% 100%,40% 100%,15% 80%,0% 55%,20% 25%);
+  flex-shrink: 0;
+}
+.nav-brand { display: flex; flex-direction: column; }
+.nav-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 2px;
+  color: var(--text);
+  line-height: 1;
+}
+.nav-title span { color: #E8251A; }
+.nav-byline {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.8px;
+  margin-top: 1px;
+}
+.nav-center {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+.tab-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab-btn:hover { background: var(--bg3); color: var(--text); }
+.tab-btn.active {
+  background: #E8251A;
+  color: white;
+  font-weight: 600;
+  border-color: #E8251A;
+}
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.nav-tag {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* TOGGLE SWITCH */
+.toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.toggle-icon { font-size: 14px; }
+.toggle {
+  position: relative;
+  width: 44px; height: 24px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.toggle input { display: none; }
+.toggle-track {
+  position: absolute; inset: 0;
+  background: var(--toggle-bg);
+  border-radius: 12px;
+  border: 1px solid var(--border2);
+  transition: background 0.3s;
+}
+.toggle input:checked + .toggle-track { background: #E8251A; border-color: #E8251A; }
+.toggle-knob {
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 16px; height: 16px;
+  background: var(--toggle-knob);
+  border-radius: 50%;
+  transition: transform 0.3s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.toggle input:checked ~ .toggle-knob { transform: translateX(20px); }
+
+/* PAGES */
+.page { display: none; padding: 24px 28px 60px; }
+.page.active { display: block; }
+
+/* PAGE HEADER */
+.page-header { margin-bottom: 24px; }
+.page-header h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  letter-spacing: 2px;
+  line-height: 1;
+  color: var(--text);
+}
+.page-header h1 span { color: #E8251A; }
+.page-header p {
+  margin-top: 5px;
+  font-size: 13px;
+  color: var(--text-muted);
+  max-width: 560px;
+}
+
+/* NUMBER BADGES on header */
+.page-header-badges {
+  display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;
+}
+.badge {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border2);
+  color: var(--text-muted);
+  background: var(--bg2);
+}
+.badge.red { background: rgba(232,37,26,0.08); color: #E8251A; border-color: rgba(232,37,26,0.2); }
+.badge.orange { background: rgba(255,107,53,0.08); color: #FF6B35; border-color: rgba(255,107,53,0.2); }
+
+/* KPI GRID */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.kpi-card {
+  background: var(--kpi-bg);
+  border: 1px solid var(--kpi-border);
+  border-radius: 12px;
+  padding: 15px 16px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px; height: 100%;
+  background: #FF6B35;
+}
+.kpi-card.red-accent::before { background: #E8251A; }
+.kpi-card.dim-accent::before { background: var(--text-dim); }
+.kpi-label {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 7px;
+  font-weight: 500;
+}
+.kpi-value {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 30px;
+  letter-spacing: 1px;
+  line-height: 1;
+  color: var(--text);
+}
+.kpi-sub { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+
+/* CHART GRID */
+.chart-grid { display: grid; gap: 14px; margin-bottom: 14px; }
+.chart-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+.chart-grid.cols-3 { grid-template-columns: 2fr 1fr; }
+.chart-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+.chart-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.chart-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
+.chart-wrap { position: relative; width: 100%; }
+
+/* INSIGHT BOX */
+.insight-box {
+  background: var(--insight-bg);
+  border: 1px solid var(--insight-border);
+  border-radius: 10px;
+  padding: 13px 15px;
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.insight-box strong { color: #FF6B35; font-weight: 600; }
+
+/* SECTION DIVIDER */
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 22px 0 14px;
+}
+.section-label .num {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  background: #E8251A;
+  color: white;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.section-label span {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* FUNNEL */
+.funnel-stage { margin-bottom: 10px; }
+.funnel-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 4px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.funnel-bar-track {
+  height: 34px;
+  background: var(--funnel-track);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.funnel-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  padding-left: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.95);
+}
+.funnel-drop {
+  font-size: 11px;
+  color: #E8251A;
+  margin-top: 3px;
+  text-align: right;
+}
+
+/* GENDER CARDS */
+.gender-row { display: flex; gap: 12px; }
+.gender-card {
+  flex: 1;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.gender-icon { font-size: 32px; margin-bottom: 6px; }
+.gender-pct {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 44px;
+  line-height: 1;
+}
+.gender-card.male .gender-pct { color: #2979C8; }
+.gender-card.female .gender-pct { color: #E8251A; }
+.gender-card p { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+/* PROXIMITY */
+.prox-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  padding: 16px 0;
+}
+.prox-circle {
+  width: 130px; height: 130px;
+  border-radius: 50%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+}
+.prox-circle.inner {
+  background: rgba(232,37,26,0.1);
+  border: 2px solid #E8251A;
+}
+.prox-circle.outer {
+  background: var(--prox-outer-bg);
+  border: 2px solid var(--prox-outer-border);
+}
+.prox-pct {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 34px;
+  color: #E8251A;
+  line-height: 1;
+}
+.prox-circle.outer .prox-pct { color: var(--text-dim); }
+.prox-label { font-size: 10px; color: var(--text-muted); letter-spacing: 0.5px; margin-top: 2px; }
+
+/* STAT TABLE */
+.stat-table { width: 100%; border-collapse: collapse; }
+.stat-table td {
+  padding: 10px 12px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.stat-table td:first-child { color: var(--stat-td); }
+.stat-table td:last-child { text-align: right; font-weight: 600; }
+.stat-table tr:last-child td { border-bottom: none; }
+
+/* PSYCH GRID */
+.psych-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.psych-card {
+  background: var(--psych-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+.psych-card .psych-icon { font-size: 22px; margin-bottom: 8px; }
+.psych-card h3 { font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text); }
+.psych-card p { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+
+/* LEGEND */
+.legend {
+  display: flex; flex-wrap: wrap;
+  gap: 12px; margin-bottom: 10px;
+  font-size: 11px; color: var(--text-muted);
+}
+.legend span { display: flex; align-items: center; gap: 5px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+/* WATERMARK */
+.watermark {
+  position: fixed;
+  bottom: 10px; right: 14px;
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.45;
+}
+
+/* ORANGE SECTION HEADER (like image) */
+.section-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #FF6B35;
+  color: white;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+.section-header .num { font-family: 'Bebas Neue', sans-serif; font-size: 15px; }
+
+/* MOBILE */
+@media (max-width: 720px) {
+  .chart-grid.cols-2, .chart-grid.cols-3 { grid-template-columns: 1fr; }
+  .psych-grid { grid-template-columns: 1fr; }
+  .nav-center { display: none; }
+  .mobile-tabs {
+    display: flex; overflow-x: auto;
+    gap: 4px; padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-tag { display: none; }
+}
+@media (min-width: 721px) { .mobile-tabs { display: none; } }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-left">
+    <div class="flame"></div>
+    <div class="nav-brand">
+      <div class="nav-title">TINDER <span>INSIGHT</span></div>
+      <div class="nav-byline">BY SITANSHU SINGH</div>
+    </div>
+  </div>
+  <div class="nav-center">
+    <button class="tab-btn active" onclick="showPage('overview')">Overview</button>
+    <button class="tab-btn" onclick="showPage('behavior')">User Behavior</button>
+    <button class="tab-btn" onclick="showPage('funnel')">Funnel</button>
+    <button class="tab-btn" onclick="showPage('proximity')">Proximity</button>
+    <button class="tab-btn" onclick="showPage('psychology')">Psychology</button>
+  </div>
+  <div class="nav-right">
+    <div class="nav-tag">5,000 USERS · DUMMY DATASET</div>
+    <div class="toggle-wrap">
+      <span class="toggle-icon">☀️</span>
+      <label class="toggle">
+        <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
+        <div class="toggle-track"></div>
+        <div class="toggle-knob"></div>
+      </label>
+      <span class="toggle-icon">🌙</span>
+    </div>
+  </div>
+</nav>
+
+<!-- MOBILE TABS -->
+<div class="mobile-tabs">
+  <button class="tab-btn active" onclick="showPage('overview')">Overview</button>
+  <button class="tab-btn" onclick="showPage('behavior')">Behavior</button>
+  <button class="tab-btn" onclick="showPage('funnel')">Funnel</button>
+  <button class="tab-btn" onclick="showPage('proximity')">Proximity</button>
+  <button class="tab-btn" onclick="showPage('psychology')">Psychology</button>
+</div>
+
+<!-- ========== PAGE 1: OVERVIEW ========== -->
+<div class="page active" id="page-overview">
+  <div class="page-header">
+    <h1>EXECUTIVE <span>OVERVIEW</span></h1>
+    <p>The real story behind the swipes — full funnel from first tap to actual relationship.</p>
+    <div class="page-header-badges">
+      <span class="badge red">5,000 Users</span>
+      <span class="badge orange">29 Cities</span>
+      <span class="badge">14 Countries</span>
+      <span class="badge">553K Swipes</span>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Total Users</div>
+      <div class="kpi-value">5,000</div>
+      <div class="kpi-sub">Across 29 cities</div>
+    </div>
+    <div class="kpi-card red-accent">
+      <div class="kpi-label">Total Swipes</div>
+      <div class="kpi-value">553K</div>
+      <div class="kpi-sub">Avg 110/day per user</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Total Matches</div>
+      <div class="kpi-value">52.8K</div>
+      <div class="kpi-sub">Match rate: 9.54%</div>
+    </div>
+    <div class="kpi-card dim-accent">
+      <div class="kpi-label">Conversations</div>
+      <div class="kpi-value">33.2K</div>
+      <div class="kpi-sub">62.8% of matches</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Meetings</div>
+      <div class="kpi-value">14.1K</div>
+      <div class="kpi-sub">42.6% of convos</div>
+    </div>
+    <div class="kpi-card red-accent">
+      <div class="kpi-label">Relationships</div>
+      <div class="kpi-value">288</div>
+      <div class="kpi-sub">0.55% of matches</div>
+    </div>
+  </div>
+
+  <div class="chart-grid cols-3">
+    <div class="chart-card">
+      <div class="section-header"><span class="num">02</span> THE "GOLDEN HOURS"</div>
+      <div class="chart-sub">User activity peaks between 6:00 PM – 9:00 PM &nbsp;·&nbsp; 4X higher than morning</div>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:#E8251A"></span>Peak hours (6–9 PM)</span>
+        <span><span class="legend-dot" style="background:#FF9A6C"></span>Other evening</span>
+        <span><span class="legend-dot" style="background:#CCCCCC"></span>Off-peak</span>
+      </div>
+      <div class="chart-wrap" style="height:230px">
+        <canvas id="hourChart" role="img" aria-label="Bar chart showing hourly user activity peaking between 18 and 21 hours">Peak activity between hours 18-21.</canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="section-header"><span class="num">—</span> TIME BUCKETS</div>
+      <div class="chart-sub">Evening dominates at 53% of all activity</div>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:#E8251A"></span>Evening 53%</span>
+        <span><span class="legend-dot" style="background:#FF6B35"></span>Afternoon 21%</span>
+        <span><span class="legend-dot" style="background:#888"></span>Night 16%</span>
+        <span><span class="legend-dot" style="background:#CCC"></span>Morning 10%</span>
+      </div>
+      <div class="chart-wrap" style="height:230px">
+        <canvas id="bucketChart" role="img" aria-label="Donut chart of time buckets">Evening 53%, Afternoon 21%, Night 16%, Morning 10%.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="section-header"><span class="num">01</span> GENDER IMBALANCE</div>
+      <div class="chart-sub">Platform-wide gender split across all cities</div>
+      <div class="gender-row">
+        <div class="gender-card male">
+          <div class="gender-icon">♂</div>
+          <div class="gender-pct">75%</div>
+          <p>Male — 3,752 users</p>
+        </div>
+        <div class="gender-card female">
+          <div class="gender-icon">♀</div>
+          <div class="gender-pct">25%</div>
+          <p>Female — 1,248 users</p>
+        </div>
+      </div>
+      <div class="insight-box">
+        The <strong>3:1 male-to-female ratio</strong> means men face intense competition per match. In regions like India, this gap widens further — directly crushing male match rates.
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Age Distribution</div>
+      <div class="chart-sub">Core user base is 23–32 years old</div>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:#FF6B35"></span>Users per age group</span>
+      </div>
+      <div class="chart-wrap" style="height:200px">
+        <canvas id="ageChart" role="img" aria-label="Horizontal bar chart of age groups">23-27: 1831, 28-32: 1520, 18-22: 1033, 33-37: 534, 38+: 82.</canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE 2: BEHAVIOR ========== -->
+<div class="page" id="page-behavior">
+  <div class="page-header">
+    <h1>USER <span>BEHAVIOR</span></h1>
+    <p>When users swipe, how long they stay, and what separates male from female engagement.</p>
+  </div>
+
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-title">Activity Heatmap — Hour vs Day</div>
+      <div class="chart-sub">Darker = more users active at that hour/day combination</div>
+      <div id="heatmap" style="margin-top:8px"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Weekly Activity Pattern</div>
+      <div class="chart-sub">Saturday sees the highest single-day usage volume</div>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:#E8251A"></span>Sat/Fri peak</span>
+        <span><span class="legend-dot" style="background:#FF9A6C"></span>Other days</span>
+      </div>
+      <div class="chart-wrap" style="height:220px">
+        <canvas id="dayChart" role="img" aria-label="Bar chart of users per day">Mon 700, Tue 753, Wed 675, Thu 714, Fri 680, Sat 770, Sun 708.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-card" style="margin-top:14px">
+    <div class="section-header"><span class="num">—</span> MALE vs FEMALE ENGAGEMENT</div>
+    <div class="chart-sub">Comparing average swipes, match rate, conversation rate, and session time</div>
+    <div class="legend">
+      <span><span class="legend-dot" style="background:#2979C8"></span>Male</span>
+      <span><span class="legend-dot" style="background:#E8251A"></span>Female</span>
+    </div>
+    <div class="chart-wrap" style="height:200px">
+      <canvas id="genderCompChart" role="img" aria-label="Grouped bar chart male vs female">Male vs female engagement comparison.</canvas>
+    </div>
+  </div>
+
+  <div class="insight-box">
+    Female users get <strong>substantially more matches per swipe</strong> because they are a minority on the platform. This causes choice paralysis and inbox overload. Male users swipe broadly to compensate, which lowers their per-swipe quality. This asymmetry is structural — it is built into the platform's demographics.
+  </div>
+</div>
+
+<!-- ========== PAGE 3: FUNNEL ========== -->
+<div class="page" id="page-funnel">
+  <div class="page-header">
+    <h1>FUNNEL <span>ANALYSIS</span></h1>
+    <p>Where users drop off — from first swipe all the way to an actual relationship.</p>
+    <div class="page-header-badges">
+      <span class="badge red">553K Swipes → 288 Relationships</span>
+      <span class="badge">99.95% drop-off rate</span>
+    </div>
+  </div>
+
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="section-header"><span class="num">03</span> THE FILTERING FUNNEL</div>
+      <div class="chart-sub">~95% of matches lead to meetings, but only ~0.5% become relationships</div>
+      <div style="padding: 8px 0 4px">
+        <div class="funnel-stage">
+          <div class="funnel-label"><span>Swipes</span><span>553,644</span></div>
+          <div class="funnel-bar-track">
+            <div class="funnel-bar-fill" style="width:100%;background:linear-gradient(90deg,#E8251A,#FF6B35)">100%</div>
+          </div>
+        </div>
+        <div class="funnel-stage">
+          <div class="funnel-label"><span>Matches</span><span>52,809</span></div>
+          <div class="funnel-bar-track">
+            <div class="funnel-bar-fill" style="width:9.54%;background:linear-gradient(90deg,#E8251A,#FF6B35)">9.5%</div>
+          </div>
+          <div class="funnel-drop">↓ 90.5% drop from swipes</div>
+        </div>
+        <div class="funnel-stage">
+          <div class="funnel-label"><span>Conversations</span><span>33,171</span></div>
+          <div class="funnel-bar-track">
+            <div class="funnel-bar-fill" style="width:6%;background:#C41F15">6.0%</div>
+          </div>
+          <div class="funnel-drop">↓ 37.2% drop from matches</div>
+        </div>
+        <div class="funnel-stage">
+          <div class="funnel-label"><span>Meetings</span><span>14,120</span></div>
+          <div class="funnel-bar-track">
+            <div class="funnel-bar-fill" style="width:2.55%;background:#8B1510">2.6%</div>
+          </div>
+          <div class="funnel-drop">↓ 57.4% drop from conversations</div>
+        </div>
+        <div class="funnel-stage">
+          <div class="funnel-label"><span>Relationships</span><span>288</span></div>
+          <div class="funnel-bar-track">
+            <div class="funnel-bar-fill" style="width:0.8%;background:#555">0.05%</div>
+          </div>
+          <div class="funnel-drop">↓ 98% drop from meetings</div>
+        </div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Stage Conversion Rates</div>
+      <div class="chart-sub">Each rate measured against its immediately preceding stage</div>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:#FF6B35"></span>Conversion %</span>
+      </div>
+      <div class="chart-wrap" style="height:260px">
+        <canvas id="conversionChart" role="img" aria-label="Horizontal bar showing stage conversion rates">Match 9.5%, Convo 62.8%, Meeting 42.6%, Relationship 2%.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-card" style="margin-top:14px">
+    <div class="chart-title">DAX Measures — Power BI Reference</div>
+    <div class="chart-sub">Copy these directly into your Power BI data model</div>
+    <table class="stat-table">
+      <tr><td>Match Conversion Rate</td><td style="color:#FF6B35">DIVIDE([Total Matches], [Total Swipes]) = <strong>9.54%</strong></td></tr>
+      <tr><td>Conversation Rate</td><td style="color:#FF6B35">DIVIDE([Total Conversations], [Total Matches]) = <strong>62.81%</strong></td></tr>
+      <tr><td>Meeting Rate</td><td style="color:#FF6B35">DIVIDE([Total Meetings], [Total Conversations]) = <strong>42.57%</strong></td></tr>
+      <tr><td>Relationship Rate</td><td style="color:#FF6B35">DIVIDE([Total Relationships], [Total Matches]) = <strong>0.55%</strong></td></tr>
+      <tr><td>Drop Off Rate</td><td style="color:#E8251A">1 − [Relationship Conversion Rate] = <strong>99.45%</strong></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ========== PAGE 4: PROXIMITY ========== -->
+<div class="page" id="page-proximity">
+  <div class="page-header">
+    <h1>PROXIMITY <span>ANALYSIS</span></h1>
+    <p>Distance is a decisive filter. Users consistently prefer — and convert better with — nearby matches.</p>
+  </div>
+
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="section-header"><span class="num">04</span> PROXIMITY IS KING</div>
+      <div class="chart-sub">Roughly 60% of successful matches occur within a 10-mile radius</div>
+      <div class="prox-visual">
+        <div class="prox-circle inner">
+          <div class="prox-pct">59.9%</div>
+          <div class="prox-label">Within<br>10 miles</div>
+        </div>
+        <div style="font-size:12px;color:var(--text-dim);text-align:center;font-weight:600">VS</div>
+        <div class="prox-circle outer">
+          <div class="prox-pct" style="color:var(--text-dim)">40.1%</div>
+          <div class="prox-label">Beyond<br>10 miles</div>
+        </div>
+      </div>
+      <div class="legend" style="justify-content:center">
+        <span><span class="legend-dot" style="background:#E8251A"></span>Within 10 mi — 2,997 users</span>
+        <span><span class="legend-dot" style="background:#CCCCCC"></span>Beyond — 2,003 users</span>
+      </div>
+      <div class="chart-wrap" style="height:180px">
+        <canvas id="proximityChart" role="img" aria-label="Donut chart showing 60% within 10 miles">Within 10 miles 59.9%, Beyond 40.1%.</canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Top User Markets</div>
+      <div class="chart-sub">User concentration by country — USA and India lead</div>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:#E8251A"></span>Top 2 markets</span>
+        <span><span class="legend-dot" style="background:#FF9A6C"></span>Mid markets</span>
+      </div>
+      <div class="chart-wrap" style="height:280px">
+        <canvas id="countryChart" role="img" aria-label="Horizontal bar chart of users by country">USA: 837, India: 825, Germany: 522, Canada: 507, UK: 492.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-box">
+    <strong>Proximity is King.</strong> Nearly 60% of successful interactions happen within a 10-mile radius. Shorter distance removes friction, creates real-world possibility, and increases the chance of a spontaneous meetup. Users matched beyond 10 miles often start conversations but rarely reach the meeting stage.
+  </div>
+</div>
+
+<!-- ========== PAGE 5: PSYCHOLOGY ========== -->
+<div class="page" id="page-psychology">
+  <div class="page-header">
+    <h1>PSYCHOLOGY <span>INSIGHTS</span></h1>
+    <p>The emotional and behavioral forces behind the data — why people swipe, when, and what it actually means.</p>
+  </div>
+
+  <div class="psych-grid">
+    <div class="psych-card">
+      <div class="psych-icon">🌆</div>
+      <h3>The Evening Spike</h3>
+      <p>Activity surges 6–9 PM not by accident. After a full workday, users seek distraction and social validation. The brain's reward system is more receptive to novelty when slightly fatigued — making swipes feel effortlessly satisfying.</p>
+    </div>
+    <div class="psych-card">
+      <div class="psych-icon">💬</div>
+      <h3>High Engagement ≠ Real Relationships</h3>
+      <p>553K swipes. 52K matches. Only 288 relationships. The dopamine loop of swiping substitutes for the actual effort of building a real connection. Engagement metrics serve the platform — not the user.</p>
+    </div>
+    <div class="psych-card">
+      <div class="psych-icon">⚖️</div>
+      <h3>The Gender Asymmetry Effect</h3>
+      <p>75% male users means women receive disproportionate attention — causing choice paralysis and message fatigue. Men swipe broadly and indiscriminately to compensate, which lowers their own match quality and morale over time.</p>
+    </div>
+    <div class="psych-card">
+      <div class="psych-icon">📍</div>
+      <h3>Proximity as Psychological Safety</h3>
+      <p>Matching within 10 miles is not just convenience. It reduces perceived risk. A nearby match feels more real, more accountable. Distance is a subconscious filter for how serious someone actually is.</p>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-title">Engagement Score vs Session Time</div>
+    <div class="chart-sub">Higher session time peaks then plateaus — more time does not mean more relationships</div>
+    <div class="legend">
+      <span><span class="legend-dot" style="background:#FF6B35"></span>Avg engagement score (swipes × session)</span>
+    </div>
+    <div class="chart-wrap" style="height:210px">
+      <canvas id="engagementChart" role="img" aria-label="Line chart of engagement vs session time buckets">Engagement peaks in 45-60 min range then flattens.</canvas>
+    </div>
+  </div>
+
+  <div class="insight-box">
+    The data tells a story the app does not want you to hear: <strong>swipe volume and relationship outcomes are nearly uncorrelated.</strong> Spending more time on the app improves engagement metrics — for the platform. Real relationships require real-world courage, not a faster thumb. <em>Swipe less. Understand more. Data never lies.</em>
+  </div>
+</div>
+
+<!-- WATERMARK -->
+<div class="watermark">Tinder Insight · Created by Sitanshu Singh</div>
+
+<script>
+// ---- THEME TOGGLE ----
+function toggleTheme() {
+  const root = document.documentElement;
+  const isDark = document.getElementById('themeToggle').checked;
+  root.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  updateChartColors();
+}
+
+function getColors() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  return {
+    text: isDark ? '#9A9080' : '#888888',
+    grid: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)',
+    tooltip: {
+      bg: isDark ? '#1A1A1A' : '#FFFFFF',
+      title: isDark ? '#F5F0EB' : '#111111',
+      body: isDark ? '#9A9080' : '#555555',
+      border: isDark ? '#333' : '#DDD'
+    }
+  };
+}
+
+// ---- CHART REGISTRY ----
+const charts = {};
+
+function makeTooltip() {
+  const c = getColors();
+  return { backgroundColor: c.tooltip.bg, titleColor: c.tooltip.title, bodyColor: c.tooltip.body, borderColor: c.tooltip.border, borderWidth: 1 };
+}
+
+function baseOpts(extra) {
+  const c = getColors();
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: makeTooltip() },
+    scales: {
+      x: { ticks: { color: c.text, font:{size:10} }, grid: { color: c.grid } },
+      y: { ticks: { color: c.text, font:{size:10} }, grid: { color: c.grid } },
+      ...extra
+    }
+  };
+}
+
+function initCharts() {
+  const RED = '#E8251A', ORA = '#FF6B35', ORA_L = '#FF9A6C', DIM = '#AAAAAA', BLUE = '#2979C8';
+
+  charts.hour = new Chart(document.getElementById('hourChart'), {
+    type: 'bar',
+    data: {
+      labels: Array.from({length:24},(_,i)=>i+'h'),
+      datasets: [{
+        data: [44,53,61,53,52,65,56,40,55,42,125,123,128,140,267,240,255,263,523,521,548,816,263,267],
+        backgroundColor: (ctx) => {
+          const h = ctx.dataIndex;
+          if (h>=18 && h<=21) return RED;
+          if (h>=14 && h<18) return ORA;
+          if (h>21) return ORA_L;
+          return '#CCCCCC';
+        },
+        borderRadius: 3, borderSkipped: false,
+      }]
+    },
+    options: { ...baseOpts(), maintainAspectRatio: false, scales: {
+      x: { ticks: { color: getColors().text, font:{size:10} }, grid: { color: getColors().grid } },
+      y: { ticks: { color: getColors().text, font:{size:10} }, grid: { color: getColors().grid } }
+    }}
+  });
+
+  charts.bucket = new Chart(document.getElementById('bucketChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Evening','Afternoon','Night','Morning'],
+      datasets: [{ data: [2671,1030,793,506], backgroundColor: [RED, ORA, '#AAAAAA', '#DDDDDD'], borderWidth: 0, hoverOffset: 4 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { display: false }, tooltip: makeTooltip() } }
+  });
+
+  charts.age = new Chart(document.getElementById('ageChart'), {
+    type: 'bar',
+    data: {
+      labels: ['18–22','23–27','28–32','33–37','38+'],
+      datasets: [{ data: [1033,1831,1520,534,82], backgroundColor: [ORA_L, RED, ORA, '#AA4020', DIM], borderRadius: 4, borderSkipped: false }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false }, tooltip: makeTooltip() }, scales: {
+      x: { ticks: { color: getColors().text, font:{size:10} }, grid: { color: getColors().grid } },
+      y: { ticks: { color: getColors().text, font:{size:11} }, grid: { display: false } }
+    }}
+  });
+
+  charts.day = new Chart(document.getElementById('dayChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+      datasets: [{ data: [700,753,675,714,680,770,708], backgroundColor: [DIM,DIM,DIM,DIM,ORA,RED,DIM], borderRadius: 4, borderSkipped: false }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: makeTooltip() }, scales: {
+      x: { ticks: { color: getColors().text, font:{size:11} }, grid: { display: false } },
+      y: { ticks: { color: getColors().text, font:{size:10} }, grid: { color: getColors().grid } }
+    }}
+  });
+
+  charts.genderComp = new Chart(document.getElementById('genderCompChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Avg Swipes/Day','Match Rate (%)','Conversation Rate (%)','Session Time (min)'],
+      datasets: [
+        { label: 'Male', data: [112, 8.9, 61, 42], backgroundColor: BLUE, borderRadius: 3, borderSkipped: false },
+        { label: 'Female', data: [98, 14.2, 68, 37], backgroundColor: RED, borderRadius: 3, borderSkipped: false },
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: makeTooltip() }, scales: {
+      x: { ticks: { color: getColors().text, font:{size:10} }, grid: { display: false } },
+      y: { ticks: { color: getColors().text, font:{size:10} }, grid: { color: getColors().grid } }
+    }}
+  });
+
+  charts.conversion = new Chart(document.getElementById('conversionChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Match Rate','Conversation Rate','Meeting Rate','Relationship Rate'],
+      datasets: [{ data: [9.54,62.81,42.57,0.55], backgroundColor: [RED, ORA, ORA_L, DIM], borderRadius: 4, borderSkipped: false }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false }, tooltip: { ...makeTooltip(), callbacks: { label: ctx => ' ' + ctx.raw + '%' } } }, scales: {
+      x: { ticks: { color: getColors().text, font:{size:10}, callback: v => v+'%' }, grid: { color: getColors().grid } },
+      y: { ticks: { color: getColors().text, font:{size:11} }, grid: { display: false } }
+    }}
+  });
+
+  charts.proximity = new Chart(document.getElementById('proximityChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Within 10 miles','Beyond 10 miles'],
+      datasets: [{ data: [59.9,40.1], backgroundColor: [RED, '#CCCCCC'], borderWidth: 0, hoverOffset: 4 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { display: false }, tooltip: makeTooltip() } }
+  });
+
+  charts.country = new Chart(document.getElementById('countryChart'), {
+    type: 'bar',
+    data: {
+      labels: ['USA','India','Germany','Canada','UK','UAE','Brazil','France'],
+      datasets: [{ data: [837,825,522,507,492,372,338,310], backgroundColor: [RED,RED,ORA,ORA,ORA_L,ORA_L,DIM,DIM], borderRadius: 4, borderSkipped: false }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false }, tooltip: makeTooltip() }, scales: {
+      x: { ticks: { color: getColors().text, font:{size:10} }, grid: { color: getColors().grid } },
+      y: { ticks: { color: getColors().text, font:{size:11} }, grid: { display: false } }
+    }}
+  });
+
+  charts.engagement = new Chart(document.getElementById('engagementChart'), {
+    type: 'line',
+    data: {
+      labels: ['0–10m','10–20m','20–30m','30–45m','45–60m','60–75m','75–90m'],
+      datasets: [{
+        data: [820,1840,3200,5100,5800,5200,4100],
+        borderColor: ORA,
+        backgroundColor: 'rgba(255,107,53,0.06)',
+        pointBackgroundColor: RED,
+        pointRadius: 5,
+        tension: 0.4,
+        fill: true,
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: makeTooltip() }, scales: {
+      x: { ticks: { color: getColors().text, font:{size:11} }, grid: { display: false } },
+      y: { ticks: { color: getColors().text, font:{size:10} }, grid: { color: getColors().grid } }
+    }}
+  });
+}
+
+function updateChartColors() {
+  const c = getColors();
+  Object.values(charts).forEach(chart => {
+    if (chart.options.plugins && chart.options.plugins.tooltip) {
+      Object.assign(chart.options.plugins.tooltip, makeTooltip());
+    }
+    if (chart.options.scales) {
+      Object.values(chart.options.scales).forEach(scale => {
+        if (scale.ticks) scale.ticks.color = c.text;
+        if (scale.grid && scale.grid.color !== undefined) scale.grid.color = c.grid;
+      });
+    }
+    chart.update();
+  });
+}
+
+// ---- HEATMAP ----
+function buildHeatmap() {
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const raw = {
+    0:[20,22,25,21,21,27,22,17,22,17,50,50,52,56,108,97,103,107,212,211,222,330,107,108],
+    1:[22,24,28,24,24,30,24,19,25,19,55,55,57,62,119,106,113,117,232,231,243,362,117,118],
+    2:[20,21,25,21,21,27,22,17,22,17,50,49,52,56,107,96,102,106,213,212,222,331,107,108],
+    3:[22,24,27,23,23,29,23,18,24,18,54,54,56,61,117,104,111,115,229,228,239,356,115,116],
+    4:[21,23,26,22,22,28,22,17,23,17,52,52,54,58,112,100,107,110,219,218,229,341,110,111],
+    5:[23,26,30,26,26,32,26,20,26,20,60,60,63,68,132,118,125,130,258,257,269,401,130,131],
+    6:[21,24,27,23,23,29,23,18,24,18,53,52,55,59,114,103,109,113,224,223,234,348,113,113],
+  };
+  const maxVal = 401;
+  let html = '<div style="overflow-x:auto">';
+  html += '<div style="display:grid;grid-template-columns:44px repeat(24,1fr);gap:2px;min-width:460px">';
+  html += '<div></div>';
+  for (let h=0;h<24;h++) {
+    html += `<div style="text-align:center;font-size:9px;color:var(--text-dim);padding-bottom:3px">${h}</div>`;
+  }
+  for (let d=0;d<7;d++) {
+    html += `<div style="font-size:10px;color:var(--text-muted);display:flex;align-items:center;font-weight:500">${days[d]}</div>`;
+    for (let h=0;h<24;h++) {
+      const v = raw[d][h];
+      const intensity = v/maxVal;
+      const r = Math.round(232*intensity + 240*(1-intensity));
+      const g = Math.round(37*intensity + 235*(1-intensity));
+      const b = Math.round(26*intensity + 232*(1-intensity));
+      html += `<div style="height:22px;border-radius:2px;background:rgb(${r},${g},${b});opacity:${0.25+intensity*0.75}" title="${days[d]} ${h}:00 — ${v} users"></div>`;
+    }
+  }
+  html += '</div></div>';
+  document.getElementById('heatmap').innerHTML = html;
+}
+
+// ---- TAB SWITCHING ----
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    if (b.textContent.toLowerCase().replace(/\s/g,'').includes(id.substring(0,4))) {
+      b.classList.add('active');
+    }
+  });
+}
+
+// ---- INIT ----
+initCharts();
+buildHeatmap();
+</script>
+</body>
+</html>
