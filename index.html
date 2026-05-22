@@ -8,25 +8,28 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-  :root {
-    --red: #E8251A;
-    --orange: #FF6B35;
-    --orange-light: #FF9A6C;
-    --dark: #0D0D0D;
-    --dark2: #1A1A1A;
-    --dark3: #252525;
-    --dark4: #2F2F2F;
-    --text: #F5F0EB;
-    --text-muted: #9A9080;
-    --text-dim: #6A6058;
-    --border: rgba(255,255,255,0.06);
-    --glow-red: rgba(232,37,26,0.15);
-    --glow-orange: rgba(255,107,53,0.12);
-  }
+ :root {
+  --red: #E8251A;
+  --orange: #FF6B35;
+  --orange-light: #FF9A6C;
+
+  --dark: #FFFFFF;
+  --dark2: #F8F9FA;
+  --dark3: #EDEDED;
+  --dark4: #DDDDDD;
+
+  --text: #111111;
+  --text-muted: #555555;
+  --text-dim: #888888;
+
+  --border: rgba(0,0,0,0.08);
+  --glow-red: rgba(232,37,26,0.08);
+  --glow-orange: rgba(255,107,53,0.08);
+}
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
-    background: var(--dark);
-    color: var(--text);
+  background: #FFFFFF;
+  color: #111111;
     font-family: 'DM Sans', sans-serif;
     font-weight: 400;
     min-height: 100vh;
@@ -38,10 +41,10 @@
     align-items: center;
     justify-content: space-between;
     padding: 18px 32px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid #EDEDED;
     position: sticky;
     top: 0;
-    background: rgba(13,13,13,0.95);
+     background: #FFFFFF;
     backdrop-filter: blur(8px);
     z-index: 100;
   }
@@ -115,7 +118,7 @@
     margin-bottom: 28px;
   }
   .kpi-card {
-    background: var(--dark2);
+    background: #FFFFFF;
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 16px 18px;
