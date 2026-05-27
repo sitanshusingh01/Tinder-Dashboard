@@ -1,8 +1,4 @@
-# Tinder User Behavior Analysis Dashboard
 
-A Power BI project that digs into how real people actually use a dating app. Not just the swipe numbers, but the full story from first swipe to relationship.
-
----
 
 ## About This Project
 
