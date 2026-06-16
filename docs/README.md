@@ -2,8 +2,6 @@
 
 A Power BI project that digs into how real people actually use a dating app. Not just the swipe numbers, but the full story from first swipe to relationship.
 
----
-
 ## About This Project
 
 I built this because I wanted to understand something that bothered me. Dating apps report millions of matches but nobody talks about how few of those lead to anything real. This dashboard answers that question with data.
