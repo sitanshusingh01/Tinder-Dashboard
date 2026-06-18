@@ -8,7 +8,7 @@ I built this because I wanted to understand something that bothered me. Dating a
 
 It covers 5000 simulated users across 29 cities worldwide. The dataset is designed to reflect actual behavioral patterns you would see on a platform like Tinder. Gender split, peak activity hours, distance preferences, and funnel drop offs are all modeled on documented behavioral research.
 
-If you work in product analytics, UX, or just want a solid Power BI portfolio piece that actually tells a story, this is for you.
+
 
 ## Dataset
 
